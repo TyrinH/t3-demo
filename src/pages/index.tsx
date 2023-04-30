@@ -20,7 +20,7 @@ const Home: NextPage = () => {
     return (
       <div className="card-compact card w-96 bg-base-100 shadow-xl indicator">
         <div className="indicator-item indicator-end">
-        <button className="btn-square btn bg-red-600" onClick={deleteTodoAction}>
+        <button className="btn-square btn bg-red-600" onClick={() => void deleteTodoAction()}>
           <svg
             xmlns="http://www.w3.org/2000/svg"
             className="h-6 w-6"
