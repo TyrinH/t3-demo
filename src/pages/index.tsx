@@ -2,33 +2,48 @@ import { type NextPage } from "next";
 import Head from "next/head";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
+import React from "react";
 
 import { api } from "~/utils/api";
 import { type Todo } from "@prisma/client";
 
-function Card({ todo }: { todo: Todo }) {
-  return (
-    <div className="card-compact card w-96 bg-base-100 shadow-xl">
-      <figure>
-        {/* <img
-          src="/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-          alt="Shoes"
-        /> */}
-      </figure>
-      <div className="card-body">
-        <h2 className="card-title">{todo.title}</h2>
-        <p>{todo.description}</p>
-        {/* <div className="card-actions justify-end">
-          <button className="btn-primary btn">Buy Now</button>
-        </div> */}
-      </div>
-    </div>
-  );
-}
-
 const Home: NextPage = () => {
-  // const hello = api.example.hello.useQuery({ text: "Tyrin" });
   const todos = api.todos.getAll.useQuery();
+
+  function Card({ todo }: { todo: Todo }) {    
+    const deleteTodo = api.todos.deleteTodo.useMutation();
+  
+    const deleteTodoAction = async () => {
+      await deleteTodo.mutateAsync(todo)
+      await todos.refetch()
+    }
+    return (
+      <div className="card-compact card w-96 bg-base-100 shadow-xl indicator">
+        <div className="indicator-item indicator-end">
+        <button className="btn-square btn bg-red-600" onClick={deleteTodoAction}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="h-6 w-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              d="M6 18L18 6M6 6l12 12"
+              />
+          </svg>
+        </button>
+              </div>
+        <div className="card-body">
+          <h2 className="card-title">{todo.title}</h2>
+          <p>{todo.description}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>
@@ -77,3 +92,4 @@ const AuthShowcase: React.FC = () => {
     </div>
   );
 };
+

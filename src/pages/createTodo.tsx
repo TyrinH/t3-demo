@@ -5,7 +5,6 @@ import CreateTodoForm from "~/components/CreateTodoForm";
 
 
 const createTodo: NextPage = () => {
-    // const test = api.example.getAll.useQuery()
   
     return (
       <>

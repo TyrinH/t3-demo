@@ -32,4 +32,16 @@ export const todosRouter = createTRPCRouter({
         });
     }),
 
+    deleteTodo: publicProcedure
+    .input(z.object({ id: z.string() }))
+    .mutation(({ input, ctx }) => {
+        // mutation is optional
+        console.log('MUTATION INPUT', input)
+        return ctx.prisma.todo.delete({
+            where: {
+                id: input.id
+            },
+        });
+    }),
+
 });

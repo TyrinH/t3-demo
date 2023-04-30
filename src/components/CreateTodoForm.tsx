@@ -1,6 +1,8 @@
 import React from "react";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { api } from "~/utils/api";
+import { useRouter } from "next/router";
+
 
 type Inputs = {
   title: string;
@@ -9,28 +11,20 @@ type Inputs = {
 };
 
 export default function CreateTodoForm() {
+  const router = useRouter();
   const createTodo = api.todos.createTodo.useMutation();
   const {
     register,
     handleSubmit,
-    reset,
-    // watch,
-    formState,
-    formState: { errors, isSubmitSuccessful },
+    formState: { errors },
   } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = (data) => {
+  const onSubmit: SubmitHandler<Inputs> = async (data) => {
     console.log(data);
-    createTodo.mutateAsync(data).catch((err) => {
+    await createTodo.mutateAsync(data).catch((err) => {
       console.error(err);
     });
+   await router.push("/");
   };
-  React.useEffect(() => {
-    if (formState.isSubmitSuccessful) {
-      reset({ title: "", description: "" });
-    }
-  }, [formState, reset]);
-  // console.log(watch("title")); // watch input value by passing the name of it
-
   return (
     // eslint-disable-next-line @typescript-eslint/no-misused-promises
     <form className="form-control" onSubmit={handleSubmit(onSubmit)}>
