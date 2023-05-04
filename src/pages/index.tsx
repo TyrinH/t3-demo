@@ -1,43 +1,75 @@
 import { type NextPage } from "next";
 import Head from "next/head";
-import Link from "next/link";
-import { signIn, signOut, useSession } from "next-auth/react";
+// import { signIn, signOut, useSession } from "next-auth/react";
 import React from "react";
 
 import { api } from "~/utils/api";
 import { type Todo } from "@prisma/client";
 
 const Home: NextPage = () => {
-  const todos = api.todos.getAll.useQuery();
+  const unCompletedTodos = api.todos.getAllUnCompleted.useQuery();
+  const completedTodosQuery = api.todos.getAllCompleted.useQuery();
 
-  function Card({ todo }: { todo: Todo }) {    
+function CompletedTodo() {
+  return (
+    <div className="collapse">
+  <input type="checkbox" />
+  <div className="collapse-title text-xl font-medium">
+    Click me to show/hide completed todos
+  </div>
+  <div className="collapse-content">
+    <div className="grid grid-cols-1 gap-4">
+      {completedTodosQuery?.data?.map((todo) => (
+       <p key={todo.id}>{todo.title} </p>
+      ))}
+    </div>
+    {/* <p>{todo.description}</p> */}
+  </div>
+</div>
+  )
+}
+
+  function Card({ todo }: { todo: Todo }) {
     const deleteTodo = api.todos.deleteTodo.useMutation();
-  
+    const markCompleted = api.todos.completeTodo.useMutation();
+
+
     const deleteTodoAction = async () => {
-      await deleteTodo.mutateAsync(todo)
-      await todos.refetch()
+      await deleteTodo.mutateAsync(todo);
+      await unCompletedTodos.refetch();
+    };
+    const markTodoComplete = async () => {
+      todo.completed = !todo.completed;
+      await markCompleted.mutateAsync(todo);
+      await completedTodosQuery.refetch();
+
     }
     return (
-      <div className="card-compact card w-96 bg-base-100 shadow-xl indicator">
-        <div className="indicator-item indicator-end">
-        <button className="btn-square btn bg-red-600" onClick={() => void deleteTodoAction()}>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-            >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M6 18L18 6M6 6l12 12"
-              />
-          </svg>
-        </button>
-              </div>
+      <div className="card-compact card w-96 bg-base-100 shadow-xl">
         <div className="card-body">
+          <div className="card-actions justify-end">
+            <input type="checkbox" onChange={ () => void markTodoComplete()}
+            checked={todo.completed} className="checkbox-info checkbox checkbox-lg" />
+            <button
+              className="btn-outline btn-error btn-sm btn"
+              onClick={() => void deleteTodoAction()}
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-6 w-6"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
           <h2 className="card-title">{todo.title}</h2>
           <p>{todo.description}</p>
         </div>
@@ -54,13 +86,11 @@ const Home: NextPage = () => {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-          {todos?.data?.map((todo) => (
+          {unCompletedTodos?.data?.map((todo) => (
             <Card key={todo.id} todo={todo} />
           ))}
-          <button className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20">
-            <Link href="/createTodo">Create Todo</Link>
-          </button>
-          <AuthShowcase />
+            <CompletedTodo />
+          {/* <AuthShowcase /> */}
         </div>
       </main>
     </>
@@ -69,27 +99,28 @@ const Home: NextPage = () => {
 
 export default Home;
 
-const AuthShowcase: React.FC = () => {
-  const { data: sessionData } = useSession();
+//Keep this for later
+// const AuthShowcase: React.FC = () => {
+//   const { data: sessionData } = useSession();
+//   console.log('SESSION DATAAA', sessionData)
 
-  const { data: secretMessage } = api.example.getSecretMessage.useQuery(
-    undefined, // no input
-    { enabled: sessionData?.user !== undefined }
-  );
+//   const { data: secretMessage } = api.example.getSecretMessage.useQuery(
+//     undefined, // no input
+//     { enabled: sessionData?.user !== undefined }
+//   );
 
-  return (
-    <div className="flex flex-col items-center justify-center gap-4">
-      <p className="text-center text-2xl text-white">
-        {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
-        {secretMessage && <span> - {secretMessage}</span>}
-      </p>
-      <button
-        className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
-        onClick={sessionData ? () => void signOut() : () => void signIn()}
-      >
-        {sessionData ? "Sign out" : "Sign in"}
-      </button>
-    </div>
-  );
-};
-
+//   return (
+//     <div className="flex flex-col items-center justify-center gap-4">
+//       <p className="text-center text-2xl text-white">
+//         {sessionData && <span>Logged in as {sessionData.user?.name}</span>}
+//         {secretMessage && <span> - {secretMessage}</span>}
+//       </p>
+//       <button
+//         className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
+//         onClick={sessionData ? () => void signOut() : () => void signIn()}
+//       >
+//         {sessionData ? "Sign out" : "Sign in"}
+//       </button>
+//     </div>
+//   );
+// };

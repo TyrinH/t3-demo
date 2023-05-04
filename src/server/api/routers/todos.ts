@@ -15,8 +15,19 @@ export const todosRouter = createTRPCRouter({
 //       };
 //     }),
 
-  getAll: publicProcedure.query(({ ctx }) => {
-    return ctx.prisma.todo.findMany();
+  getAllUnCompleted: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.todo.findMany({
+        where: {
+            completed: false
+        }
+    });
+  }),
+  getAllCompleted: publicProcedure.query(({ ctx }) => {
+    return ctx.prisma.todo.findMany({
+        where: {
+            completed: true
+        }
+    });
   }),
 
   createTodo: publicProcedure
@@ -29,6 +40,21 @@ export const todosRouter = createTRPCRouter({
                 title: input.title,
                 description: input.description,
             },
+        });
+    }),
+
+    completeTodo: publicProcedure
+    .input(z.object({ completed: z.boolean(), id: z.string() }))
+    .mutation(({ input, ctx }) => {
+        // mutation is optional
+        console.log('MUTATION INPUT', input)
+        return ctx.prisma.todo.update({
+            where: {
+                id: input.id
+            },
+            data: {
+                completed: input.completed
+            }
         });
     }),
 
