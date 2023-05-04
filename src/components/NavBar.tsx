@@ -1,8 +1,13 @@
 import Link from "next/link";
+import Image from "next/image";
 import { signIn, signOut, useSession } from "next-auth/react";
 
 export default function NavBar() {
   const { data: sessionData } = useSession();
+
+  // if(!sessionData) {
+  //   return null
+  // }
 
   return (
     <div className="navbar bg-base-100">
@@ -28,11 +33,11 @@ export default function NavBar() {
               </button>
             )}
           </li>
-          <li>{sessionData && <p>{sessionData?.user.name}</p>}</li>
+          <li>{sessionData && <p>{sessionData?.user.name }</p>}</li>
           <div className="dropdown-end dropdown">
             <label tabIndex={0} className="btn-ghost btn-circle avatar btn">
               <div className="w-10 rounded-full">
-                {sessionData && <img src={sessionData?.user.image} />}
+                {sessionData && <Image src={sessionData?.user.image as string} alt='' width={56} height={56}/>}
               </div>
             </label>
             <ul
