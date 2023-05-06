@@ -10,24 +10,25 @@ const Home: NextPage = () => {
   const unCompletedTodos = api.todos.getAllUnCompleted.useQuery();
   const completedTodosQuery = api.todos.getAllCompleted.useQuery();
 
-function CompletedTodo() {
-  return (
-    <div className="collapse">
-  <input type="checkbox" />
-  <div className="collapse-title text-xl font-medium">
-    Click me to show/hide completed todos
-  </div>
-  <div className="collapse-content">
-    <div className="grid grid-cols-1 gap-4">
-      {completedTodosQuery?.data?.map((todo) => (
-       <p key={todo.id}>{todo.title} </p>
-      ))}
-    </div>
-    {/* <p>{todo.description}</p> */}
-  </div>
-</div>
-  )
-}
+// For reference
+// function CompletedTodo() {
+//   return (
+//     <div className="collapse">
+//   <input type="checkbox" />
+//   <div className="collapse-title text-xl font-medium">
+//     Click me to show/hide completed todos
+//   </div>
+//   <div className="collapse-content">
+//     <div className="grid grid-cols-1 gap-4">
+//       {completedTodosQuery?.data?.map((todo) => (
+//        <p key={todo.id}><s>{todo.title}</s> </p>
+//       ))}
+//     </div>
+//     {/* <p>{todo.description}</p> */}
+//   </div>
+// </div>
+//   )
+// }
 
   function Card({ todo }: { todo: Todo }) {
     const deleteTodo = api.todos.deleteTodo.useMutation();
@@ -49,9 +50,10 @@ function CompletedTodo() {
         <div className="card-body">
           <div className="card-actions justify-end">
             <input type="checkbox" onChange={ () => void markTodoComplete()}
-            checked={todo.completed} className="checkbox-info checkbox checkbox-lg" />
+            checked={todo.completed} disabled={todo.completed} className="checkbox-info checkbox checkbox-lg" />
             <button
               className="btn-outline btn-error btn-sm btn"
+              disabled={todo.completed}
               onClick={() => void deleteTodoAction()}
             >
               <svg
@@ -70,8 +72,8 @@ function CompletedTodo() {
               </svg>
             </button>
           </div>
-          <h2 className="card-title">{todo.title}</h2>
-          <p>{todo.description}</p>
+          {!todo.completed ?  <h2 className="card-title">{todo.title}</h2> :  <h2 className="card-title"><s>{todo.title}</s></h2>}
+          {!todo.completed ?  <p>{todo.description}</p> :  <s><p>{todo.description}</p></s>}
         </div>
       </div>
     );
@@ -89,7 +91,10 @@ function CompletedTodo() {
           {unCompletedTodos?.data?.map((todo) => (
             <Card key={todo.id} todo={todo} />
           ))}
-            <CompletedTodo />
+              {completedTodosQuery?.data?.map((todo) => (
+            <Card key={todo.id} todo={todo} />
+          ))}
+            {/* <CompletedTodo /> */}
           {/* <AuthShowcase /> */}
         </div>
       </main>
